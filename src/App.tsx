@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { Catalog } from './services/Catalog';
 import { Product } from './models/Product';
-import './App.css';
+
 
 const catalog = new Catalog();
 
 // Початкові товари
-catalog.addProduct("Ноутбук Lenovo", 25000, "Електроніка");
-catalog.addProduct("Навушники Sony", 3500, "Електроніка");
-catalog.addProduct("Футболка Nike", 890, "Одяг");
-catalog.addProduct("Кросівки Adidas", 3200, "Взуття");
+catalog.addProduct("Ноутбук", 25000, "Електроніка");
+catalog.addProduct("Навушники", 3500, "Електроніка");
+catalog.addProduct("Футболка", 890, "Одяг");
 
 function App() {
   const [products, setProducts] = useState<Product[]>(catalog.getAll());
@@ -17,104 +16,51 @@ function App() {
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
 
-  // Оновити список
-  const updateList = () => {
-    setProducts([...catalog.getAll()]);
-  };
+  const update = () => setProducts([...catalog.getAll()]);
 
-  // Додати товар
-  const handleAdd = () => {
-    if (!name || !price || !category) {
-      alert("Заповніть всі поля!");
-      return;
-    }
-
+  const add = () => {
+    if (!name || !price || !category) return alert("Заповніть всі поля");
     catalog.addProduct(name, Number(price), category);
-    updateList();
-
-    // Очистити поля
+    update();
     setName('');
     setPrice('');
     setCategory('');
   };
 
-  // Видалити товар
-  const handleDelete = (id: number) => {
+  const remove = (id: number) => {
     catalog.removeProduct(id);
-    updateList();
+    update();
   };
 
-  // Очистити каталог
-  const handleClear = () => {
-    if (window.confirm("Очистити весь каталог?")) {
-      catalog.clear();
-      updateList();
-    }
+  const clear = () => {
+    catalog.clear();
+    update();
   };
 
   return (
-    <div className="App" style={{ padding: '20px', maxWidth: '700px', margin: '0 auto' }}>
+    <div style={{ padding: 20 }}>
       <h1>Каталог товарів</h1>
 
-      {/* Форма додавання */}
-      <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
-        <h3>Додати товар</h3>
-        <input
-          type="text"
-          placeholder="Назва"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ marginRight: '10px', padding: '5px' }}
-        />
-        <input
-          type="number"
-          placeholder="Ціна"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          style={{ marginRight: '10px', padding: '5px', width: '100px' }}
-        />
-        <input
-          type="text"
-          placeholder="Категорія"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          style={{ marginRight: '10px', padding: '5px' }}
-        />
-        <button onClick={handleAdd}>Додати</button>
+      <div>
+        <input placeholder="Назва" value={name} onChange={e => setName(e.target.value)} />
+        <input placeholder="Ціна" type="number" value={price} onChange={e => setPrice(e.target.value)} />
+        <input placeholder="Категорія" value={category} onChange={e => setCategory(e.target.value)} />
+        <button onClick={add}>Додати</button>
       </div>
 
-      {/* Кнопки управління */}
-      <div style={{ marginBottom: '15px' }}>
-        <button onClick={handleClear} style={{ marginRight: '10px', background: '#ff4d4d', color: 'white' }}>
-          Очистити каталог
-        </button>
-        <strong>Всього товарів: {catalog.getCount()}</strong>
-      </div>
+      <br />
 
-      {/* Список товарів */}
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <button onClick={clear}>Очистити все</button>
+      <p>Всього: {catalog.getCount()}</p>
+
+      <ul>
         {products.map(p => (
-          <li key={p.id} style={{ 
-            padding: '10px', 
-            marginBottom: '8px', 
-            background: '#f5f5f5', 
-            borderRadius: '6px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <span>{p.display()}</span>
-            <button 
-              onClick={() => handleDelete(p.id)}
-              style={{ background: '#ff6b6b', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}
-            >
-              Видалити
-            </button>
+          <li key={p.id}>
+            {p.display()} 
+            <button onClick={() => remove(p.id)}>Видалити</button>
           </li>
         ))}
       </ul>
-
-      {products.length === 0 && <p>Каталог порожній</p>}
     </div>
   );
 }
